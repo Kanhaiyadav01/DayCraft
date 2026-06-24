@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { Toaster } from "sonner";
 import { TimerRunner } from "@/components/notebook/TimerRunner";
 import { supabase } from "@/integrations/supabase/client";
+import { Analytics } from "@vercel/analytics/react";
 
 function NotFoundComponent() {
   return (
@@ -138,6 +139,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <Toaster position="top-center" toastOptions={{ className: "font-hand text-lg" }} />
+      <Analytics />
     </QueryClientProvider>
   );
 }
