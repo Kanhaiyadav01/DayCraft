@@ -234,7 +234,9 @@ function FocusPage() {
 
     // Play alarm
     if (!muted) {
-      alarmPlayer.start(alarm, alarmMode, customSoundData, volume);
+      alarmPlayer.start(alarm, alarmMode, customSoundData, volume, () => {
+        setAlarmActive(false);
+      });
     }
 
     const { currentCycle, currentPhase } = cycleState;
@@ -315,7 +317,9 @@ function FocusPage() {
 
   function replayAlarm() {
     if (!muted) {
-      alarmPlayer.start(alarm, alarmMode, customSoundData, volume);
+      alarmPlayer.start(alarm, alarmMode, customSoundData, volume, () => {
+        setAlarmActive(false);
+      });
     }
   }
 

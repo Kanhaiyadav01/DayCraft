@@ -58,7 +58,9 @@ export function TimerRunner() {
     lastFiredRef.current = now;
 
     if (!muted) {
-      alarmPlayer.startWithPreferences(alarm, alarmMode, customSoundData, volume, muted);
+      alarmPlayer.startWithPreferences(alarm, alarmMode, customSoundData, volume, muted, () => {
+        useTimerStore.getState().stopAlarm();
+      });
     }
     toast.success(`${presetLabel} complete! Click stop to silence.`, {
       duration: 8000,

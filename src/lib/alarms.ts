@@ -31,6 +31,7 @@ class AlarmPlayer {
     null;
   private playing = false;
   private activeAudio: HTMLAudioElement | null = null;
+  private onEndedCallback: (() => void) | null = null;
 
   private ensureCtx(): AudioContext {
     if (!this.ctx) {
@@ -54,6 +55,18 @@ class AlarmPlayer {
         /* ignore */
       }
       this.activeAudio = null;
+    }
+  }
+
+  private triggerEnded(): void {
+    const cb = this.onEndedCallback;
+    this.stop();
+    if (cb) {
+      try {
+        cb();
+      } catch (err) {
+        console.error("Error in alarm onEnded callback:", err);
+      }
     }
   }
 
@@ -81,11 +94,13 @@ class AlarmPlayer {
     mode: "notification" | "repeat" | "continuous",
     customSoundData: string | null,
     volume: number = 0.8,
+    onEnded?: () => void,
   ): void {
     if (this.playing) {
       this.stop(); // Stop any currently playing alarms
     }
     this.playing = true;
+    this.onEndedCallback = onEnded || null;
 
     if (customSoundData) {
       try {
@@ -94,9 +109,9 @@ class AlarmPlayer {
         this.activeAudio = audio;
 
         if (mode === "notification") {
-          audio.play().catch(() => this.stop());
+          audio.play().catch(() => this.triggerEnded());
           audio.addEventListener("ended", () => {
-            this.stop();
+            this.triggerEnded();
           });
         } else if (mode === "repeat") {
           let playCount = 1;
@@ -104,7 +119,7 @@ class AlarmPlayer {
             if (!this.playing) return;
             if (playCount >= 4) {
               // Repeat 4 times total
-              this.stop();
+              this.triggerEnded();
               return;
             }
             this.interval = window.setTimeout(() => {
@@ -115,19 +130,22 @@ class AlarmPlayer {
                 .then(() => {
                   playCount++;
                 })
-                .catch(() => this.stop());
+                .catch(() => this.triggerEnded());
             }, 1000); // 1-second delay between repeats
           };
           audio.addEventListener("ended", handleEnded);
-          audio.play().catch(() => this.stop());
+          audio.play().catch(() => this.triggerEnded());
         } else {
           // Continuous mode
           audio.loop = true;
-          audio.play().catch(() => this.stop());
+          audio.play().catch((err) => {
+            console.error("Continuous play error:", err);
+            this.triggerEnded();
+          });
         }
       } catch (err) {
         console.error("Audio playback error:", err);
-        this.playing = false;
+        this.triggerEnded();
       }
     } else {
       // Synthesized alarm
@@ -139,7 +157,7 @@ class AlarmPlayer {
 
         if (mode === "notification") {
           this.interval = window.setTimeout(() => {
-            this.stop();
+            this.triggerEnded();
           }, period * 1000);
         } else if (mode === "repeat") {
           let count = 1;
@@ -147,7 +165,7 @@ class AlarmPlayer {
             if (!this.ctx) return;
             if (count >= 4) {
               // Repeat 4 times total
-              this.stop();
+              this.triggerEnded();
               return;
             }
             renderPattern(this.ctx, id, this.ctx.currentTime, volume);
@@ -162,7 +180,7 @@ class AlarmPlayer {
         }
       } catch (err) {
         console.error("Synthesizer playback error:", err);
-        this.playing = false;
+        this.triggerEnded();
       }
     }
   }
@@ -179,27 +197,42 @@ class AlarmPlayer {
     customSoundData: string | null,
     volume: number,
     muted: boolean,
+    onEnded?: () => void,
   ): void {
     if (muted) return;
     if (customSoundData) {
-      this.start(builtInId, mode, customSoundData, volume);
+      this.start(builtInId, mode, customSoundData, volume, onEnded);
     } else {
-      this.start(builtInId, mode, null, volume);
+      this.start(builtInId, mode, null, volume, onEnded);
     }
   }
 
   stop(): void {
     if (this.interval != null) {
-      clearInterval(this.interval);
-      clearTimeout(this.interval);
+      clearInterval(this.interval as number);
+      clearTimeout(this.interval as number);
       this.interval = null;
     }
     this.stopActiveAudio();
     this.playing = false;
+    this.onEndedCallback = null;
   }
 
   isPlaying(): boolean {
     return this.playing;
+  }
+
+  unlockAudio(): void {
+    try {
+      const ctx = this.ensureCtx();
+      if (ctx.state === "suspended") {
+        void ctx.resume().then(() => {
+          console.log("[AlarmPlayer] AudioContext successfully resumed on user gesture.");
+        });
+      }
+    } catch (e) {
+      console.error("[AlarmPlayer] Failed to unlock audio context:", e);
+    }
   }
 }
 
@@ -251,12 +284,26 @@ function tone(
   const gain = ctx.createGain();
   osc.type = type;
   osc.frequency.value = freq;
-  gain.gain.setValueAtTime(0.0001, start);
-  gain.gain.exponentialRampToValueAtTime(gainPeak * volumeFactor, start + 0.02);
-  gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+  const now = ctx.currentTime;
+  const startTime = Math.max(now, start);
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.linearRampToValueAtTime(gainPeak * volumeFactor, startTime + 0.02);
+  gain.gain.linearRampToValueAtTime(0.0001, startTime + dur);
   osc.connect(gain).connect(ctx.destination);
-  osc.start(start);
-  osc.stop(start + dur + 0.05);
+  osc.start(startTime);
+  osc.stop(startTime + dur + 0.05);
 }
 
 export const alarmPlayer = new AlarmPlayer();
+
+if (typeof window !== "undefined") {
+  const unlock = () => {
+    alarmPlayer.unlockAudio();
+    document.removeEventListener("click", unlock);
+    document.removeEventListener("keydown", unlock);
+    document.removeEventListener("touchstart", unlock);
+  };
+  document.addEventListener("click", unlock);
+  document.addEventListener("keydown", unlock);
+  document.addEventListener("touchstart", unlock);
+}
