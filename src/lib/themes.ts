@@ -20,7 +20,7 @@ export interface ThemeMeta {
 export const THEMES: ThemeMeta[] = [
   {
     id: "classic",
-    name: "TimeSketch Classic",
+    name: "DayCraft Classic",
     emoji: "✏️",
     tagline: "Warm cream paper, fountain-pen blue.",
     swatches: { paper: "#f6f0dc", ink: "#1f2540", accent: "#4f6bd6", tape: "#f0d98a" },

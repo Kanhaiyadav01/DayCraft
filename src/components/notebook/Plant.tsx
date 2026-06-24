@@ -25,7 +25,14 @@ export function Plant({ species, stage, size = 72, delay = 0 }: PlantProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <ellipse cx="50" cy="88" rx="28" ry="5" fill="color-mix(in oklab, var(--ink) 12%, transparent)" stroke="none" />
+      <ellipse
+        cx="50"
+        cy="88"
+        rx="28"
+        ry="5"
+        fill="color-mix(in oklab, var(--ink) 12%, transparent)"
+        stroke="none"
+      />
       {render(species, stage)}
     </motion.svg>
   );
@@ -95,7 +102,10 @@ function render(s: Species, stage: PlantStage) {
       <>
         {soil}
         <rect x="34" y="58" width="32" height="22" rx="3" fill="var(--tape)" />
-        <path d="M50 58 q-10 -10 -14 -22 q10 4 14 14 q4 -10 14 -14 q-4 12 -14 22 Z" fill="var(--mint)" />
+        <path
+          d="M50 58 q-10 -10 -14 -22 q10 4 14 14 q4 -10 14 -14 q-4 12 -14 22 Z"
+          fill="var(--mint)"
+        />
         <path d="M50 58 q0 -16 0 -22" />
       </>
     );

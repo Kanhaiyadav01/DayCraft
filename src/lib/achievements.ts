@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { computeStreak } from "./time";
 
 /**
  * Recompute the user's stats and unlock any newly earned achievements.
@@ -13,6 +14,7 @@ export async function checkAndUnlockAchievements(userId: string) {
     { data: runs },
     { data: notes },
     { data: plants },
+    { data: tasks },
   ] = await Promise.all([
     supabase.from("achievements").select("id, name, icon, category, threshold"),
     supabase.from("user_achievements").select("achievement_id").eq("user_id", userId),
@@ -20,6 +22,7 @@ export async function checkAndUnlockAchievements(userId: string) {
     supabase.from("timer_runs").select("seconds, created_at").eq("user_id", userId),
     supabase.from("notes").select("id").eq("user_id", userId),
     supabase.from("garden_plants").select("id").eq("user_id", userId),
+    supabase.from("tasks").select("id").eq("user_id", userId).eq("done", true),
   ]);
 
   const have = new Set((unlocked ?? []).map((u) => u.achievement_id));
@@ -28,6 +31,7 @@ export async function checkAndUnlockAchievements(userId: string) {
   const totalSeconds = (runs ?? []).reduce((s, r) => s + (r.seconds ?? 0), 0);
   const noteCount = notes?.length ?? 0;
   const plantCount = plants?.length ?? 0;
+  const taskCount = tasks?.length ?? 0;
   const streak = computeStreak(runs ?? []);
 
   const stats: Record<string, number> = {
@@ -36,6 +40,7 @@ export async function checkAndUnlockAchievements(userId: string) {
     streak,
     notes: noteCount,
     garden: plantCount,
+    tasks: taskCount,
   };
 
   const newlyUnlocked = (achievements ?? []).filter((a) => {
@@ -46,28 +51,14 @@ export async function checkAndUnlockAchievements(userId: string) {
 
   if (newlyUnlocked.length === 0) return [];
 
-  await supabase.from("user_achievements").insert(
-    newlyUnlocked.map((a) => ({ user_id: userId, achievement_id: a.id })),
-  );
+  await supabase
+    .from("user_achievements")
+    .insert(newlyUnlocked.map((a) => ({ user_id: userId, achievement_id: a.id })));
 
   for (const a of newlyUnlocked) {
     toast.success(`${a.icon} Achievement unlocked: ${a.name}`, { duration: 6000 });
   }
   return newlyUnlocked;
-}
-
-function computeStreak(runs: Array<{ created_at: string }>): number {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const key = (d: Date) => d.toISOString().slice(0, 10);
-  const days = new Set(runs.map((r) => key(new Date(r.created_at))));
-  let streak = 0;
-  const cursor = new Date(today);
-  while (days.has(key(cursor))) {
-    streak++;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  return streak;
 }
 
 /** Unlock a single achievement by id (e.g. when user picks a custom theme). */

@@ -19,7 +19,7 @@ type Task = {
 };
 
 export function QuickChecklist({ className, limit }: { className?: string; limit?: number }) {
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
   const qc = useQueryClient();
   const [text, setText] = React.useState("");
   const [busy, setBusy] = React.useState(false);
@@ -28,6 +28,15 @@ export function QuickChecklist({ className, limit }: { className?: string; limit
     queryKey: ["tasks", user?.id],
     enabled: !!user,
     queryFn: async () => {
+      if (isGuest) {
+        const local = localStorage.getItem("daycraft-guest-tasks");
+        const list = local ? JSON.parse(local) : [];
+        return list.sort((a: Task, b: Task) => {
+          if (a.done !== b.done) return a.done ? 1 : -1;
+          if (a.sort_order !== b.sort_order) return b.sort_order - a.sort_order;
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+      }
       const { data, error } = await supabase
         .from("tasks")
         .select("id, text, done, sort_order, created_at")
@@ -44,9 +53,27 @@ export function QuickChecklist({ className, limit }: { className?: string; limit
     const t = text.trim();
     if (!t || !user) return;
     setBusy(true);
+    if (isGuest) {
+      const maxSort = tasks.length > 0 ? Math.max(...tasks.map((task) => task.sort_order)) : 0;
+      const local = localStorage.getItem("daycraft-guest-tasks");
+      const list = local ? JSON.parse(local) : [];
+      list.push({
+        id: `g-task-${Math.random().toString(36).slice(2, 9)}`,
+        text: t,
+        done: false,
+        sort_order: maxSort + 1,
+        created_at: new Date().toISOString(),
+      });
+      localStorage.setItem("daycraft-guest-tasks", JSON.stringify(list));
+      setBusy(false);
+      setText("");
+      qc.invalidateQueries({ queryKey: ["tasks"] });
+      return;
+    }
+    const maxSort = tasks.length > 0 ? Math.max(...tasks.map((task) => task.sort_order)) : 0;
     const { error } = await supabase
       .from("tasks")
-      .insert({ user_id: user.id, text: t, sort_order: Date.now() });
+      .insert({ user_id: user.id, text: t, sort_order: maxSort + 1 });
     setBusy(false);
     if (error) return toast.error(error.message);
     setText("");
@@ -57,6 +84,14 @@ export function QuickChecklist({ className, limit }: { className?: string; limit
     qc.setQueryData<Task[]>(["tasks", user?.id], (prev) =>
       (prev ?? []).map((x) => (x.id === task.id ? { ...x, done } : x)),
     );
+    if (isGuest) {
+      const local = localStorage.getItem("daycraft-guest-tasks");
+      const list = local ? JSON.parse(local) : [];
+      const updated = list.map((x: Task) => (x.id === task.id ? { ...x, done } : x));
+      localStorage.setItem("daycraft-guest-tasks", JSON.stringify(updated));
+      qc.invalidateQueries({ queryKey: ["tasks"] });
+      return;
+    }
     const { error } = await supabase.from("tasks").update({ done }).eq("id", task.id);
     if (error) {
       toast.error(error.message);
@@ -65,6 +100,14 @@ export function QuickChecklist({ className, limit }: { className?: string; limit
   }
 
   async function remove(id: string) {
+    if (isGuest) {
+      const local = localStorage.getItem("daycraft-guest-tasks");
+      const list = local ? JSON.parse(local) : [];
+      const updated = list.filter((x: Task) => x.id !== id);
+      localStorage.setItem("daycraft-guest-tasks", JSON.stringify(updated));
+      qc.invalidateQueries({ queryKey: ["tasks"] });
+      return;
+    }
     const { error } = await supabase.from("tasks").delete().eq("id", id);
     if (error) return toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["tasks"] });
@@ -81,7 +124,12 @@ export function QuickChecklist({ className, limit }: { className?: string; limit
           placeholder="add a checklist item…"
           disabled={!user || busy}
         />
-        <Button type="submit" size="icon" aria-label="Add task" disabled={!user || busy || !text.trim()}>
+        <Button
+          type="submit"
+          size="icon"
+          aria-label="Add task"
+          disabled={!user || busy || !text.trim()}
+        >
           <Plus className="h-4 w-4" />
         </Button>
       </form>
@@ -103,11 +151,7 @@ export function QuickChecklist({ className, limit }: { className?: string; limit
                   exit={{ opacity: 0, x: 8 }}
                   className="flex items-center justify-between gap-2 group"
                 >
-                  <Checkbox
-                    checked={t.done}
-                    onCheckedChange={(v) => toggle(t, v)}
-                    label={t.text}
-                  />
+                  <Checkbox checked={t.done} onCheckedChange={(v) => toggle(t, v)} label={t.text} />
                   <button
                     onClick={() => remove(t.id)}
                     aria-label="Remove"

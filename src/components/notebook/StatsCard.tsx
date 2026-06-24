@@ -19,7 +19,14 @@ const toneBg: Record<NonNullable<StatsCardProps["tone"]>, string> = {
   tape: "bg-tape text-ink",
 };
 
-export function StatsCard({ label, value, hint, icon, tone = "accent", className }: StatsCardProps) {
+export function StatsCard({
+  label,
+  value,
+  hint,
+  icon,
+  tone = "accent",
+  className,
+}: StatsCardProps) {
   return (
     <Card className={cn("flex items-start gap-4", className)} tilt="left">
       {icon && (

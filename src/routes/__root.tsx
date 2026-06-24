@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { Toaster } from "sonner";
 import { TimerRunner } from "@/components/notebook/TimerRunner";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
@@ -75,19 +76,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "TimeSketch — a cozy handwritten productivity companion" },
+      { title: "DayCraft — a cozy handwritten productivity companion" },
       {
         name: "description",
         content:
-          "TimeSketch is a notebook-style productivity app: focus timers, quick notes, a focus garden, and a hand-drawn theme engine.",
+          "DayCraft is a notebook-style productivity app: focus timers, quick notes, and a hand-drawn theme engine.",
       },
-      { name: "author", content: "TimeSketch" },
-      { property: "og:title", content: "TimeSketch" },
+      { name: "author", content: "DayCraft" },
+      { property: "og:title", content: "DayCraft" },
       { property: "og:description", content: "A cozy handwritten productivity companion." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
     links: [
+      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
@@ -122,16 +124,12 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
-    let unsub: (() => void) | undefined;
-    import("@/integrations/supabase/client").then(({ supabase }) => {
-      const { data } = supabase.auth.onAuthStateChange((event) => {
-        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-        router.invalidate();
-        if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
-      });
-      unsub = () => data.subscription.unsubscribe();
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      router.invalidate();
+      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
     });
-    return () => unsub?.();
+    return () => data.subscription.unsubscribe();
   }, [queryClient, router]);
 
   return (

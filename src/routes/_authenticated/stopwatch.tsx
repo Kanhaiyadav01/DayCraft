@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { formatMS, formatHMS } from "@/lib/time";
 
 export const Route = createFileRoute("/_authenticated/stopwatch")({
-  head: () => ({ meta: [{ title: "Stopwatch · TimeSketch" }] }),
+  head: () => ({ meta: [{ title: "Stopwatch · DayCraft" }] }),
   component: StopwatchPage,
 });
 
@@ -93,7 +93,9 @@ function StopwatchPage() {
           <header className="paper-card p-6 relative">
             <Tape className="absolute -top-3 right-12" rotate={6} />
             <h1 className="font-hand text-5xl leading-none">Stopwatch</h1>
-            <p className="text-ink-soft mt-1">Open-ended timing with laps. Save the whole run when you're done.</p>
+            <p className="text-ink-soft mt-1">
+              Open-ended timing with laps. Save the whole run when you're done.
+            </p>
           </header>
 
           <Card className="text-center py-12">
@@ -111,7 +113,15 @@ function StopwatchPage() {
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button onClick={toggle} variant={running ? "outline" : "primary"} size="lg">
-                {running ? <><Pause className="h-5 w-5" /> Pause</> : <><Play className="h-5 w-5" /> {elapsed > 0 ? "Resume" : "Start"}</>}
+                {running ? (
+                  <>
+                    <Pause className="h-5 w-5" /> Pause
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-5 w-5" /> {elapsed > 0 ? "Resume" : "Start"}
+                  </>
+                )}
               </Button>
               <Button onClick={addLap} variant="tape" size="lg" disabled={!running}>
                 <Flag className="h-5 w-5" /> Lap
@@ -142,7 +152,9 @@ function StopwatchPage() {
                   <li key={i} className="py-2 flex items-center justify-between">
                     <Badge tone={i === 0 ? "accent" : "soft"}>Lap {laps.length - i}</Badge>
                     <span className="font-hand text-xl tabular-nums">{formatMS(lapDeltas[i])}</span>
-                    <span className="font-body text-sm text-ink-soft tabular-nums">{formatMS(ms)}</span>
+                    <span className="font-body text-sm text-ink-soft tabular-nums">
+                      {formatMS(ms)}
+                    </span>
                   </li>
                 ))}
               </ul>

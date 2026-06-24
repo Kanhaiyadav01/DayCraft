@@ -12,7 +12,7 @@ import { formatRelative } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/notes")({
-  head: () => ({ meta: [{ title: "Notes · TimeSketch" }] }),
+  head: () => ({ meta: [{ title: "Notes · DayCraft" }] }),
   component: NotesPage,
 });
 
@@ -41,7 +41,7 @@ function tiltFor(id: string): "left" | "right" | "none" {
 }
 
 function NotesPage() {
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
   const qc = useQueryClient();
   const [query, setQuery] = React.useState("");
   const [editing, setEditing] = React.useState<Partial<Note> | null>(null);
@@ -50,6 +50,14 @@ function NotesPage() {
     queryKey: ["notes", user?.id],
     enabled: !!user,
     queryFn: async () => {
+      if (isGuest) {
+        const local = localStorage.getItem("daycraft-guest-notes");
+        const list = local ? JSON.parse(local) : [];
+        return list.sort((a: Note, b: Note) => {
+          if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        });
+      }
       const { data, error } = await supabase
         .from("notes")
         .select("id, title, body, tags, pinned, color, updated_at")
@@ -85,6 +93,33 @@ function NotesPage() {
       toast.error("Add a title or body first.");
       return;
     }
+    if (isGuest) {
+      const local = localStorage.getItem("daycraft-guest-notes");
+      const list = local ? JSON.parse(local) : [];
+      if (n.id) {
+        const idx = list.findIndex((x: Note) => x.id === n.id);
+        if (idx !== -1) {
+          list[idx] = {
+            ...list[idx],
+            ...payload,
+            updated_at: new Date().toISOString(),
+          };
+        }
+      } else {
+        list.push({
+          id: `g-note-${Math.random().toString(36).slice(2, 9)}`,
+          ...payload,
+          updated_at: new Date().toISOString(),
+          created_at: new Date().toISOString(),
+        });
+      }
+      localStorage.setItem("daycraft-guest-notes", JSON.stringify(list));
+      toast.success(n.id ? "Note updated" : "Note saved");
+      setEditing(null);
+      qc.invalidateQueries({ queryKey: ["notes"] });
+      qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      return;
+    }
     const res = n.id
       ? await supabase.from("notes").update(payload).eq("id", n.id)
       : await supabase.from("notes").insert(payload);
@@ -95,13 +130,39 @@ function NotesPage() {
     qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
   }
 
+  const [deletingNote, setDeletingNote] = React.useState<Note | null>(null);
+
   async function togglePin(n: Note) {
+    if (isGuest) {
+      const local = localStorage.getItem("daycraft-guest-notes");
+      const list = local ? JSON.parse(local) : [];
+      const updated = list.map((x: Note) =>
+        x.id === n.id ? { ...x, pinned: !x.pinned, updated_at: new Date().toISOString() } : x,
+      );
+      localStorage.setItem("daycraft-guest-notes", JSON.stringify(updated));
+      qc.invalidateQueries({ queryKey: ["notes"] });
+      return;
+    }
     await supabase.from("notes").update({ pinned: !n.pinned }).eq("id", n.id);
     qc.invalidateQueries({ queryKey: ["notes"] });
   }
-  async function remove(id: string) {
-    await supabase.from("notes").delete().eq("id", id);
+
+  async function confirmRemove() {
+    if (!deletingNote) return;
+    if (isGuest) {
+      const local = localStorage.getItem("daycraft-guest-notes");
+      const list = local ? JSON.parse(local) : [];
+      const updated = list.filter((x: Note) => x.id !== deletingNote.id);
+      localStorage.setItem("daycraft-guest-notes", JSON.stringify(updated));
+      toast.success("Note removed");
+      setDeletingNote(null);
+      qc.invalidateQueries({ queryKey: ["notes"] });
+      qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      return;
+    }
+    await supabase.from("notes").delete().eq("id", deletingNote.id);
     toast.success("Note removed");
+    setDeletingNote(null);
     qc.invalidateQueries({ queryKey: ["notes"] });
     qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
   }
@@ -115,7 +176,9 @@ function NotesPage() {
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <h1 className="font-hand text-5xl leading-none">Quick Notes</h1>
-                <p className="text-ink-soft mt-1">Sticky ideas, pinned to the page so you don't lose them.</p>
+                <p className="text-ink-soft mt-1">
+                  Sticky ideas, pinned to the page so you don't lose them.
+                </p>
               </div>
               <Button onClick={() => setEditing({})}>
                 <Plus className="h-4 w-4" /> New note
@@ -133,7 +196,9 @@ function NotesPage() {
           </header>
 
           {isLoading ? (
-            <Card><p className="text-ink-soft">Loading your notebook…</p></Card>
+            <Card>
+              <p className="text-ink-soft">Loading your notebook…</p>
+            </Card>
           ) : filtered.length === 0 ? (
             <Card className="text-center py-16">
               <p className="font-hand text-3xl">no notes here yet</p>
@@ -154,7 +219,7 @@ function NotesPage() {
                       note={n}
                       onOpen={() => setEditing(n)}
                       onPin={() => togglePin(n)}
-                      onDelete={() => remove(n.id)}
+                      onDelete={() => setDeletingNote(n)}
                     />
                   </motion.div>
                 ))}
@@ -165,36 +230,88 @@ function NotesPage() {
       </div>
 
       <NoteEditor open={!!editing} note={editing} onClose={() => setEditing(null)} onSave={save} />
+
+      <Modal
+        open={!!deletingNote}
+        onOpenChange={(o) => !o && setDeletingNote(null)}
+        title="Discard Note?"
+        description="Are you sure you want to delete this note? This action cannot be undone."
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setDeletingNote(null)}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={confirmRemove}>
+              Delete
+            </Button>
+          </>
+        }
+      />
     </Shell>
   );
 }
 
 function colorBg(c: string) {
   switch (c) {
-    case "mint": return "bg-mint";
-    case "coral": return "bg-coral text-white";
-    case "sky": return "bg-sky";
-    case "tape": return "bg-tape";
-    case "highlight": return "bg-highlight";
-    default: return "bg-card";
+    case "mint":
+      return "bg-mint";
+    case "coral":
+      return "bg-coral text-white";
+    case "sky":
+      return "bg-sky";
+    case "tape":
+      return "bg-tape";
+    case "highlight":
+      return "bg-highlight";
+    default:
+      return "bg-card";
   }
 }
 
-function NoteTile({ note, onOpen, onPin, onDelete }: { note: Note; onOpen: () => void; onPin: () => void; onDelete: () => void }) {
+function NoteTile({
+  note,
+  onOpen,
+  onPin,
+  onDelete,
+}: {
+  note: Note;
+  onOpen: () => void;
+  onPin: () => void;
+  onDelete: () => void;
+}) {
   const tilt = tiltFor(note.id);
   const tiltCls = tilt === "left" ? "-rotate-[0.6deg]" : tilt === "right" ? "rotate-[0.6deg]" : "";
   return (
-    <div className={cn("relative paper-card p-5 transition-transform hover:-translate-y-1", tiltCls, colorBg(note.color))}>
-      <span aria-hidden className="tape-strip absolute -top-3 left-1/2 -translate-x-1/2 h-5 w-20 -rotate-2" />
+    <div
+      className={cn(
+        "relative paper-card p-5 transition-transform hover:-translate-y-1",
+        tiltCls,
+        colorBg(note.color),
+      )}
+    >
+      <span
+        aria-hidden
+        className="tape-strip absolute -top-3 left-1/2 -translate-x-1/2 h-5 w-20 -rotate-2"
+      />
       <div className="flex items-start justify-between gap-2">
         <button onClick={onOpen} className="text-left flex-1 min-w-0">
-          <h4 className="font-hand text-2xl leading-tight break-words">{note.title || "Untitled"}</h4>
+          <h4 className="font-hand text-2xl leading-tight break-words">
+            {note.title || "Untitled"}
+          </h4>
         </button>
         <div className="flex items-center gap-1 shrink-0">
           <button onClick={onPin} aria-label="Pin" className="p-1.5 hover:bg-ink/10 rounded-md">
-            {note.pinned ? <Pin className="h-4 w-4 fill-current" /> : <PinOff className="h-4 w-4 opacity-60" />}
+            {note.pinned ? (
+              <Pin className="h-4 w-4 fill-current" />
+            ) : (
+              <PinOff className="h-4 w-4 opacity-60" />
+            )}
           </button>
-          <button onClick={onDelete} aria-label="Delete" className="p-1.5 hover:bg-ink/10 rounded-md">
+          <button
+            onClick={onDelete}
+            aria-label="Delete"
+            className="p-1.5 hover:bg-ink/10 rounded-md"
+          >
             <Trash2 className="h-4 w-4 opacity-60" />
           </button>
         </div>
@@ -206,7 +323,9 @@ function NoteTile({ note, onOpen, onPin, onDelete }: { note: Note; onOpen: () =>
         <div className="mt-4 flex items-center justify-between gap-2 flex-wrap">
           <div className="flex flex-wrap gap-1.5">
             {note.tags?.map((t) => (
-              <Badge key={t} tone="soft">#{t}</Badge>
+              <Badge key={t} tone="soft">
+                #{t}
+              </Badge>
             ))}
           </div>
           <span className="text-xs opacity-70">{formatRelative(note.updated_at)}</span>
@@ -252,7 +371,11 @@ function NoteEditor({
   }
 
   return (
-    <Modal open={open} onOpenChange={(o) => !o && onClose()} title={note?.id ? "Edit note" : "New note"}>
+    <Modal
+      open={open}
+      onOpenChange={(o) => !o && onClose()}
+      title={note?.id ? "Edit note" : "New note"}
+    >
       <div className="space-y-4">
         <Input placeholder="title" value={title} onChange={(e) => setTitle(e.target.value)} />
         <Textarea
@@ -268,7 +391,10 @@ function NoteEditor({
             {tags.map((t) => (
               <Badge key={t} tone="soft" className="gap-1">
                 #{t}
-                <button onClick={() => setTags(tags.filter((x) => x !== t))} aria-label={`remove ${t}`}>
+                <button
+                  onClick={() => setTags(tags.filter((x) => x !== t))}
+                  aria-label={`remove ${t}`}
+                >
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -276,7 +402,12 @@ function NoteEditor({
             <Input
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addTag();
+                }
+              }}
               placeholder="add tag…"
               className="max-w-[160px]"
             />
@@ -302,12 +433,19 @@ function NoteEditor({
         </div>
 
         <label className="flex items-center gap-2 font-hand text-lg">
-          <input type="checkbox" checked={pinned} onChange={(e) => setPinned(e.target.checked)} className="h-5 w-5 accent-[var(--accent)]" />
+          <input
+            type="checkbox"
+            checked={pinned}
+            onChange={(e) => setPinned(e.target.checked)}
+            className="h-5 w-5 accent-[var(--accent)]"
+          />
           Pin to the top
         </label>
 
         <div className="flex items-center justify-end gap-2 pt-2">
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
           <Button onClick={() => onSave({ id: note?.id, title, body, tags, pinned, color })}>
             {note?.id ? "Save changes" : "Save note"}
           </Button>

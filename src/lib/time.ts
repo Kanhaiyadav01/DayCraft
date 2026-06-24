@@ -26,3 +26,17 @@ export function formatRelative(d: Date | string): string {
   if (diff < 86400 * 7) return `${Math.floor(diff / 86400)}d ago`;
   return date.toLocaleDateString();
 }
+
+export function computeStreak(runs: Array<{ created_at: string }>): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const key = (d: Date) => d.toISOString().slice(0, 10);
+  const days = new Set(runs.map((r) => key(new Date(r.created_at))));
+  let streak = 0;
+  const cursor = new Date(today);
+  while (days.has(key(cursor))) {
+    streak++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}

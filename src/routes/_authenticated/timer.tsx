@@ -1,16 +1,31 @@
 import { createFileRoute } from "@tanstack/react-router";
 import * as React from "react";
 import { motion } from "framer-motion";
-import { Play, Pause, RotateCcw, Square, Coffee, Brain, BookOpen, VolumeX, Volume2 } from "lucide-react";
+import {
+  Play,
+  Pause,
+  RotateCcw,
+  Square,
+  Coffee,
+  Brain,
+  BookOpen,
+  VolumeX,
+  Volume2,
+} from "lucide-react";
 import { Badge, Button, Card, Input, Tape } from "@/components/notebook";
 import { Shell } from "@/components/notebook/Shell";
 import { formatHMS } from "@/lib/time";
 import { cn } from "@/lib/utils";
-import { computeRemaining, TIMER_PRESETS, useTimerStore, type TimerPreset } from "@/stores/timer-store";
+import {
+  computeRemaining,
+  TIMER_PRESETS,
+  useTimerStore,
+  type TimerPreset,
+} from "@/stores/timer-store";
 import { useSoundStore } from "@/stores/sound-store";
 
 export const Route = createFileRoute("/_authenticated/timer")({
-  head: () => ({ meta: [{ title: "Timer · TimeSketch" }] }),
+  head: () => ({ meta: [{ title: "Timer · DayCraft" }] }),
   component: TimerPage,
 });
 
@@ -54,7 +69,9 @@ function TimerPage() {
     if (total <= 0 || total > 24 * 3600) return;
     const label = `Custom ${h ? h + "h " : ""}${m ? m + "m " : ""}${s ? s + "s" : ""}`.trim();
     timer.setDurationSeconds(total, label, "custom");
-    setHh(""); setMm(""); setSs("");
+    setHh("");
+    setMm("");
+    setSs("");
   }
 
   const size = 280;
@@ -71,7 +88,9 @@ function TimerPage() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h1 className="font-hand text-5xl leading-none">Timer</h1>
-                <p className="text-ink-soft mt-1">Pick a preset, label your focus, and let the page count down.</p>
+                <p className="text-ink-soft mt-1">
+                  Pick a preset, label your focus, and let the page count down.
+                </p>
               </div>
               <Button
                 variant="outline"
@@ -99,13 +118,17 @@ function TimerPage() {
                     className={cn(
                       "flex items-center gap-2 px-3 py-3 ink-border rounded-[10px_14px_8px_12px] font-hand text-lg text-left",
                       "transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0",
-                      active ? "bg-accent text-accent-foreground ink-shadow" : "bg-card ink-shadow-sm",
+                      active
+                        ? "bg-accent text-accent-foreground ink-shadow"
+                        : "bg-card ink-shadow-sm",
                     )}
                   >
                     <Icon className="h-5 w-5 shrink-0" />
                     <span className="min-w-0">
                       <span className="block leading-none">{p.label}</span>
-                      <span className="block text-xs opacity-70 mt-0.5">{Math.round(p.seconds / 60)} min</span>
+                      <span className="block text-xs opacity-70 mt-0.5">
+                        {Math.round(p.seconds / 60)} min
+                      </span>
                     </span>
                   </button>
                 );
@@ -116,16 +139,31 @@ function TimerPage() {
               <LabeledNumber label="hh" value={hh} onChange={setHh} max={24} disabled={running} />
               <LabeledNumber label="mm" value={mm} onChange={setMm} max={59} disabled={running} />
               <LabeledNumber label="ss" value={ss} onChange={setSs} max={59} disabled={running} />
-              <Button variant="outline" size="sm" onClick={applyCustom} disabled={running || (!hh && !mm && !ss)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={applyCustom}
+                disabled={running || (!hh && !mm && !ss)}
+              >
                 Set custom
               </Button>
             </div>
           </Card>
 
           <Card className="text-center py-10">
-            <div className="relative inline-grid place-items-center" style={{ width: size, height: size }}>
+            <div
+              className="relative inline-grid place-items-center"
+              style={{ width: size, height: size }}
+            >
               <svg width={size} height={size} className="-rotate-90">
-                <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--rule)" strokeWidth={stroke} />
+                <circle
+                  cx={size / 2}
+                  cy={size / 2}
+                  r={r}
+                  fill="none"
+                  stroke="var(--rule)"
+                  strokeWidth={stroke}
+                />
                 <motion.circle
                   cx={size / 2}
                   cy={size / 2}
@@ -135,16 +173,21 @@ function TimerPage() {
                   strokeWidth={stroke}
                   strokeLinecap="round"
                   strokeDasharray={C}
+                  initial={{ strokeDashoffset: C }}
                   animate={{ strokeDashoffset: C * (1 - progress) }}
                   transition={{ duration: 0.4 }}
                 />
               </svg>
               <div className="absolute inset-0 grid place-items-center">
                 <div>
-                  <div className="font-hand text-6xl tabular-nums leading-none">{formatHMS(remaining)}</div>
+                  <div className="font-hand text-6xl tabular-nums leading-none">
+                    {formatHMS(remaining)}
+                  </div>
                   <div className="font-hand text-lg text-ink-soft mt-2">{timer.presetLabel}</div>
                   {timer.alarming && (
-                    <div className="font-hand text-base text-accent mt-2 animate-pulse">⏰ ringing…</div>
+                    <div className="font-hand text-base text-accent mt-2 animate-pulse">
+                      ⏰ ringing…
+                    </div>
                   )}
                 </div>
               </div>
@@ -156,7 +199,14 @@ function TimerPage() {
                   <Button onClick={timer.stopAlarm} variant="primary" size="lg">
                     <Square className="h-5 w-5" /> Stop alarm
                   </Button>
-                  <Button onClick={() => { timer.stopAlarm(); timer.reset(); }} variant="ghost" size="lg">
+                  <Button
+                    onClick={() => {
+                      timer.stopAlarm();
+                      timer.reset();
+                    }}
+                    variant="ghost"
+                    size="lg"
+                  >
                     <RotateCcw className="h-5 w-5" /> Reset
                   </Button>
                 </>
@@ -168,9 +218,14 @@ function TimerPage() {
                     size="lg"
                   >
                     {running ? (
-                      <><Pause className="h-5 w-5" /> Pause</>
+                      <>
+                        <Pause className="h-5 w-5" /> Pause
+                      </>
                     ) : (
-                      <><Play className="h-5 w-5" /> {remaining < timer.duration ? "Resume" : "Start"}</>
+                      <>
+                        <Play className="h-5 w-5" />{" "}
+                        {remaining < timer.duration ? "Resume" : "Start"}
+                      </>
                     )}
                   </Button>
                   <Button onClick={timer.reset} variant="ghost" size="lg">
@@ -200,8 +255,18 @@ function TimerPage() {
 }
 
 function LabeledNumber({
-  label, value, onChange, max, disabled,
-}: { label: string; value: string; onChange: (s: string) => void; max: number; disabled?: boolean }) {
+  label,
+  value,
+  onChange,
+  max,
+  disabled,
+}: {
+  label: string;
+  value: string;
+  onChange: (s: string) => void;
+  max: number;
+  disabled?: boolean;
+}) {
   return (
     <label className="flex flex-col gap-1">
       <span className="font-hand text-xs text-ink-soft">{label}</span>

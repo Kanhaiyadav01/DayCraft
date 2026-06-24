@@ -1,11 +1,10 @@
 @import "tailwindcss" source(none);
 @source "../src";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 /* ──────────────────────────────────────────────────────────────
- * TimeSketch design system
+ * DayCraft design system
  * Notebook aesthetic: paper, ink, tape, hard shadows, doodles.
  * Tokens are themed via [data-theme="..."] on <html>.
  * ──────────────────────────────────────────────────────────── */
@@ -77,160 +76,165 @@
   --radius-2xl: 28px;
 }
 
-/* ── TimeSketch Classic (default) ────────────────────────── */
+/* ── DayCraft Classic (default) ──────────────────────────── */
 :root,
 [data-theme="classic"] {
-  --paper:       oklch(0.972 0.018 85);   /* warm cream */
-  --paper-2:     oklch(0.945 0.022 84);   /* slightly deeper cream */
-  --card:        oklch(0.985 0.012 88);   /* near-white paper */
-  --ink:         oklch(0.22 0.03 260);    /* deep blue-black ink */
-  --ink-soft:    oklch(0.45 0.03 260);
-  --rule:        oklch(0.72 0.04 250);    /* notebook rule blue */
-  --accent:      oklch(0.62 0.17 252);    /* fountain-pen blue */
-  --accent-fg:   oklch(0.985 0 0);
-  --accent-soft: oklch(0.9  0.06 252);
-  --tape:        oklch(0.92 0.08 95);     /* washi yellow */
-  --highlight:   oklch(0.92 0.16 95);     /* highlighter yellow */
-  --mint:        oklch(0.82 0.12 165);
-  --coral:       oklch(0.7  0.17 25);
-  --sky:         oklch(0.82 0.09 230);
+  --paper: oklch(0.972 0.018 85); /* warm cream */
+  --paper-2: oklch(0.945 0.022 84); /* slightly deeper cream */
+  --card: oklch(0.985 0.012 88); /* near-white paper */
+  --ink: oklch(0.22 0.03 260); /* deep blue-black ink */
+  --ink-soft: oklch(0.45 0.03 260);
+  --rule: oklch(0.72 0.04 250); /* notebook rule blue */
+  --accent: oklch(0.62 0.17 252); /* fountain-pen blue */
+  --accent-fg: oklch(0.985 0 0);
+  --accent-soft: oklch(0.9 0.06 252);
+  --tape: oklch(0.92 0.08 95); /* washi yellow */
+  --highlight: oklch(0.92 0.16 95); /* highlighter yellow */
+  --mint: oklch(0.82 0.12 165);
+  --coral: oklch(0.7 0.17 25);
+  --sky: oklch(0.82 0.09 230);
 }
 
 /* ── Midnight Sketch 🌙 ──────────────────────────────────── */
 [data-theme="midnight"] {
-  --paper:       oklch(0.20 0.03 265);
-  --paper-2:     oklch(0.24 0.035 265);
-  --card:        oklch(0.26 0.035 265);
-  --ink:         oklch(0.95 0.02 90);
-  --ink-soft:    oklch(0.74 0.03 260);
-  --rule:        oklch(0.4  0.05 260);
-  --accent:      oklch(0.75 0.16 275);    /* indigo glow */
-  --accent-fg:   oklch(0.15 0.03 265);
+  --paper: oklch(0.2 0.03 265);
+  --paper-2: oklch(0.24 0.035 265);
+  --card: oklch(0.26 0.035 265);
+  --ink: oklch(0.95 0.02 90);
+  --ink-soft: oklch(0.74 0.03 260);
+  --rule: oklch(0.4 0.05 260);
+  --accent: oklch(0.75 0.16 275); /* indigo glow */
+  --accent-fg: oklch(0.15 0.03 265);
   --accent-soft: oklch(0.38 0.08 275);
-  --tape:        oklch(0.55 0.12 280);
-  --highlight:   oklch(0.78 0.15 95);
-  --mint:        oklch(0.78 0.14 165);
-  --coral:       oklch(0.72 0.18 25);
-  --sky:         oklch(0.78 0.12 230);
+  --tape: oklch(0.55 0.12 280);
+  --highlight: oklch(0.78 0.15 95);
+  --mint: oklch(0.78 0.14 165);
+  --coral: oklch(0.72 0.18 25);
+  --sky: oklch(0.78 0.12 230);
 }
 
 /* ── Sakura Journal 🌸 ──────────────────────────────────── */
 [data-theme="sakura"] {
-  --paper:       oklch(0.975 0.018 18);
-  --paper-2:     oklch(0.95  0.028 15);
-  --card:        oklch(0.985 0.012 20);
-  --ink:         oklch(0.32 0.07 350);    /* plum */
-  --ink-soft:    oklch(0.55 0.06 355);
-  --rule:        oklch(0.85 0.04 10);
-  --accent:      oklch(0.72 0.14 0);      /* cherry pink */
-  --accent-fg:   oklch(0.99 0 0);
+  --paper: oklch(0.975 0.018 18);
+  --paper-2: oklch(0.95 0.028 15);
+  --card: oklch(0.985 0.012 20);
+  --ink: oklch(0.32 0.07 350); /* plum */
+  --ink-soft: oklch(0.55 0.06 355);
+  --rule: oklch(0.85 0.04 10);
+  --accent: oklch(0.72 0.14 0); /* cherry pink */
+  --accent-fg: oklch(0.99 0 0);
   --accent-soft: oklch(0.92 0.06 10);
-  --tape:        oklch(0.93 0.05 10);
-  --highlight:   oklch(0.92 0.1 30);
-  --mint:        oklch(0.85 0.09 150);
-  --coral:       oklch(0.7  0.17 18);
-  --sky:         oklch(0.86 0.06 220);
+  --tape: oklch(0.93 0.05 10);
+  --highlight: oklch(0.92 0.1 30);
+  --mint: oklch(0.85 0.09 150);
+  --coral: oklch(0.7 0.17 18);
+  --sky: oklch(0.86 0.06 220);
 }
 
 /* ── Kyoto Matcha 🍵 ────────────────────────────────────── */
 [data-theme="matcha"] {
-  --paper:       oklch(0.965 0.025 115);
-  --paper-2:     oklch(0.935 0.035 115);
-  --card:        oklch(0.98  0.018 115);
-  --ink:         oklch(0.28 0.05 145);    /* deep moss */
-  --ink-soft:    oklch(0.5  0.05 145);
-  --rule:        oklch(0.78 0.05 130);
-  --accent:      oklch(0.6  0.13 140);    /* matcha green */
-  --accent-fg:   oklch(0.99 0 0);
+  --paper: oklch(0.965 0.025 115);
+  --paper-2: oklch(0.935 0.035 115);
+  --card: oklch(0.98 0.018 115);
+  --ink: oklch(0.28 0.05 145); /* deep moss */
+  --ink-soft: oklch(0.5 0.05 145);
+  --rule: oklch(0.78 0.05 130);
+  --accent: oklch(0.6 0.13 140); /* matcha green */
+  --accent-fg: oklch(0.99 0 0);
   --accent-soft: oklch(0.88 0.07 135);
-  --tape:        oklch(0.86 0.07 95);
-  --highlight:   oklch(0.9  0.12 95);
-  --mint:        oklch(0.8  0.12 160);
-  --coral:       oklch(0.7  0.15 30);
-  --sky:         oklch(0.82 0.08 210);
+  --tape: oklch(0.86 0.07 95);
+  --highlight: oklch(0.9 0.12 95);
+  --mint: oklch(0.8 0.12 160);
+  --coral: oklch(0.7 0.15 30);
+  --sky: oklch(0.82 0.08 210);
 }
 
 /* ── Lavender Dreams 💜 ─────────────────────────────────── */
 [data-theme="lavender"] {
-  --paper:       oklch(0.97 0.02 300);
-  --paper-2:     oklch(0.94 0.03 300);
-  --card:        oklch(0.985 0.012 300);
-  --ink:         oklch(0.3  0.08 295);
-  --ink-soft:    oklch(0.52 0.06 295);
-  --rule:        oklch(0.82 0.05 295);
-  --accent:      oklch(0.66 0.16 300);
-  --accent-fg:   oklch(0.99 0 0);
-  --accent-soft: oklch(0.9  0.06 300);
-  --tape:        oklch(0.88 0.08 290);
-  --highlight:   oklch(0.92 0.12 80);
-  --mint:        oklch(0.82 0.1  165);
-  --coral:       oklch(0.72 0.16 18);
-  --sky:         oklch(0.82 0.08 230);
+  --paper: oklch(0.97 0.02 300);
+  --paper-2: oklch(0.94 0.03 300);
+  --card: oklch(0.985 0.012 300);
+  --ink: oklch(0.3 0.08 295);
+  --ink-soft: oklch(0.52 0.06 295);
+  --rule: oklch(0.82 0.05 295);
+  --accent: oklch(0.66 0.16 300);
+  --accent-fg: oklch(0.99 0 0);
+  --accent-soft: oklch(0.9 0.06 300);
+  --tape: oklch(0.88 0.08 290);
+  --highlight: oklch(0.92 0.12 80);
+  --mint: oklch(0.82 0.1 165);
+  --coral: oklch(0.72 0.16 18);
+  --sky: oklch(0.82 0.08 230);
 }
 
 /* ── Ocean Breeze 🌊 ────────────────────────────────────── */
 [data-theme="ocean"] {
-  --paper:       oklch(0.965 0.02 220);
-  --paper-2:     oklch(0.93 0.035 220);
-  --card:        oklch(0.985 0.012 220);
-  --ink:         oklch(0.26 0.06 235);
-  --ink-soft:    oklch(0.5  0.06 230);
-  --rule:        oklch(0.8  0.05 225);
-  --accent:      oklch(0.62 0.13 225);
-  --accent-fg:   oklch(0.99 0 0);
+  --paper: oklch(0.965 0.02 220);
+  --paper-2: oklch(0.93 0.035 220);
+  --card: oklch(0.985 0.012 220);
+  --ink: oklch(0.26 0.06 235);
+  --ink-soft: oklch(0.5 0.06 230);
+  --rule: oklch(0.8 0.05 225);
+  --accent: oklch(0.62 0.13 225);
+  --accent-fg: oklch(0.99 0 0);
   --accent-soft: oklch(0.88 0.06 220);
-  --tape:        oklch(0.88 0.08 200);
-  --highlight:   oklch(0.9  0.12 90);
-  --mint:        oklch(0.8  0.13 170);
-  --coral:       oklch(0.72 0.16 22);
-  --sky:         oklch(0.82 0.1  225);
+  --tape: oklch(0.88 0.08 200);
+  --highlight: oklch(0.9 0.12 90);
+  --mint: oklch(0.8 0.13 170);
+  --coral: oklch(0.72 0.16 22);
+  --sky: oklch(0.82 0.1 225);
 }
 
 /* ── Forest Cabin 🌲 ────────────────────────────────────── */
 [data-theme="forest"] {
-  --paper:       oklch(0.94 0.025 75);    /* warm beige */
-  --paper-2:     oklch(0.9  0.035 75);
-  --card:        oklch(0.97 0.018 78);
-  --ink:         oklch(0.28 0.05 150);    /* deep pine */
-  --ink-soft:    oklch(0.48 0.05 145);
-  --rule:        oklch(0.72 0.05 100);
-  --accent:      oklch(0.5  0.12 145);    /* forest green */
-  --accent-fg:   oklch(0.985 0 0);
+  --paper: oklch(0.94 0.025 75); /* warm beige */
+  --paper-2: oklch(0.9 0.035 75);
+  --card: oklch(0.97 0.018 78);
+  --ink: oklch(0.28 0.05 150); /* deep pine */
+  --ink-soft: oklch(0.48 0.05 145);
+  --rule: oklch(0.72 0.05 100);
+  --accent: oklch(0.5 0.12 145); /* forest green */
+  --accent-fg: oklch(0.985 0 0);
   --accent-soft: oklch(0.85 0.07 130);
-  --tape:        oklch(0.78 0.1  60);     /* kraft tape */
-  --highlight:   oklch(0.85 0.13 85);
-  --mint:        oklch(0.78 0.12 160);
-  --coral:       oklch(0.65 0.16 30);
-  --sky:         oklch(0.78 0.07 220);
+  --tape: oklch(0.78 0.1 60); /* kraft tape */
+  --highlight: oklch(0.85 0.13 85);
+  --mint: oklch(0.78 0.12 160);
+  --coral: oklch(0.65 0.16 30);
+  --sky: oklch(0.78 0.07 220);
 }
 
 /* ── Sunset Sketch 🌅 ───────────────────────────────────── */
 [data-theme="sunset"] {
-  --paper:       oklch(0.96 0.03 60);     /* peach */
-  --paper-2:     oklch(0.92 0.045 50);
-  --card:        oklch(0.98 0.02 65);
-  --ink:         oklch(0.3  0.09 35);     /* terracotta */
-  --ink-soft:    oklch(0.52 0.07 35);
-  --rule:        oklch(0.82 0.06 45);
-  --accent:      oklch(0.68 0.18 40);     /* sunset orange */
-  --accent-fg:   oklch(0.99 0 0);
-  --accent-soft: oklch(0.9  0.08 45);
-  --tape:        oklch(0.88 0.1  20);
-  --highlight:   oklch(0.9  0.15 85);
-  --mint:        oklch(0.82 0.1  160);
-  --coral:       oklch(0.7  0.18 18);
-  --sky:         oklch(0.82 0.08 230);
+  --paper: oklch(0.96 0.03 60); /* peach */
+  --paper-2: oklch(0.92 0.045 50);
+  --card: oklch(0.98 0.02 65);
+  --ink: oklch(0.3 0.09 35); /* terracotta */
+  --ink-soft: oklch(0.52 0.07 35);
+  --rule: oklch(0.82 0.06 45);
+  --accent: oklch(0.68 0.18 40); /* sunset orange */
+  --accent-fg: oklch(0.99 0 0);
+  --accent-soft: oklch(0.9 0.08 45);
+  --tape: oklch(0.88 0.1 20);
+  --highlight: oklch(0.9 0.15 85);
+  --mint: oklch(0.82 0.1 160);
+  --coral: oklch(0.7 0.18 18);
+  --sky: oklch(0.82 0.08 230);
 }
 
 /* ── Base elements ──────────────────────────────────────── */
 @layer base {
-  * { border-color: var(--color-rule); }
+  * {
+    border-color: var(--color-rule);
+  }
 
-  html, body {
+  html,
+  body {
     background-color: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-body);
-    font-feature-settings: "ss01" on, "ss02" on;
+    font-feature-settings:
+      "ss01" on,
+      "ss02" on;
   }
 
   /* Notebook paper texture: ruled lines + slight grain */
@@ -248,11 +252,17 @@
         color-mix(in oklab, var(--ink) 5%, transparent) 1px,
         transparent 0
       );
-    background-size: 100% 32px, 6px 6px;
+    background-size:
+      100% 32px,
+      6px 6px;
     background-attachment: fixed;
   }
 
-  h1, h2, h3, h4, h5 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
     font-family: var(--font-hand);
     font-weight: 700;
     letter-spacing: 0.01em;
@@ -303,22 +313,51 @@
 
 /* ── Doodle animations ──────────────────────────────────── */
 @keyframes ts-wiggle {
-  0%, 100% { transform: rotate(-1deg); }
-  50%      { transform: rotate(1deg); }
+  0%,
+  100% {
+    transform: rotate(-1deg);
+  }
+  50% {
+    transform: rotate(1deg);
+  }
 }
 @keyframes ts-bounce-soft {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-3px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
 }
 @keyframes ts-draw {
-  to { stroke-dashoffset: 0; }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 @keyframes ts-sparkle {
-  0%, 100% { transform: scale(0.6) rotate(0deg);   opacity: 0.4; }
-  50%      { transform: scale(1)   rotate(180deg); opacity: 1; }
+  0%,
+  100% {
+    transform: scale(0.6) rotate(0deg);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1) rotate(180deg);
+    opacity: 1;
+  }
 }
 
-@utility animate-wiggle      { animation: ts-wiggle 2.6s ease-in-out infinite; }
-@utility animate-bounce-soft { animation: ts-bounce-soft 2s ease-in-out infinite; }
-@utility animate-sparkle     { animation: ts-sparkle 2.4s ease-in-out infinite; }
-@utility animate-draw        { stroke-dasharray: 200; stroke-dashoffset: 200; animation: ts-draw 1.2s ease-out forwards; }
+@utility animate-wiggle {
+  animation: ts-wiggle 2.6s ease-in-out infinite;
+}
+@utility animate-bounce-soft {
+  animation: ts-bounce-soft 2s ease-in-out infinite;
+}
+@utility animate-sparkle {
+  animation: ts-sparkle 2.4s ease-in-out infinite;
+}
+@utility animate-draw {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: ts-draw 1.2s ease-out forwards;
+}

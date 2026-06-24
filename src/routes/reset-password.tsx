@@ -7,7 +7,7 @@ import { Button, Card, Input, Tape } from "@/components/notebook";
 import { useApplyTheme } from "@/stores/theme-store";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({ meta: [{ title: "Reset password · TimeSketch" }] }),
+  head: () => ({ meta: [{ title: "Reset password · DayCraft" }] }),
   component: ResetPasswordPage,
 });
 

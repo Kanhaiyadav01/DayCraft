@@ -15,7 +15,15 @@ export interface ModalProps {
   className?: string;
 }
 
-export function Modal({ open, onOpenChange, title, description, children, footer, className }: ModalProps) {
+export function Modal({
+  open,
+  onOpenChange,
+  title,
+  description,
+  children,
+  footer,
+  className,
+}: ModalProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <AnimatePresence>
@@ -48,7 +56,9 @@ export function Modal({ open, onOpenChange, title, description, children, footer
                 <div className="mb-3 flex items-start justify-between gap-4">
                   <div>
                     {title && (
-                      <Dialog.Title className="font-hand text-3xl leading-tight">{title}</Dialog.Title>
+                      <Dialog.Title className="font-hand text-3xl leading-tight">
+                        {title}
+                      </Dialog.Title>
                     )}
                     {description && (
                       <Dialog.Description className="mt-1 text-sm text-ink-soft">

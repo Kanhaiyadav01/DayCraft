@@ -40,7 +40,12 @@ export function ThemePicker({ variant = "grid", className }: ThemePickerProps) {
   return (
     <div className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-3", className)}>
       {THEMES.map((t) => (
-        <ThemeSwatchCard key={t.id} theme={t} active={theme === t.id} onPick={() => setTheme(t.id)} />
+        <ThemeSwatchCard
+          key={t.id}
+          theme={t}
+          active={theme === t.id}
+          onPick={() => setTheme(t.id)}
+        />
       ))}
     </div>
   );
@@ -78,7 +83,11 @@ function ThemeSwatchCard({
           {active && (
             <span
               className="grid place-items-center h-7 w-7 rounded-full ink-shadow-sm"
-              style={{ background: theme.swatches.accent, color: theme.swatches.paper, border: `2px solid ${theme.swatches.ink}` }}
+              style={{
+                background: theme.swatches.accent,
+                color: theme.swatches.paper,
+                border: `2px solid ${theme.swatches.ink}`,
+              }}
             >
               <Check className="h-4 w-4" strokeWidth={3} />
             </span>

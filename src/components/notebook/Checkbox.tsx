@@ -10,7 +10,13 @@ export interface CheckboxProps {
   id?: string;
 }
 
-export function Checkbox({ checked = false, onCheckedChange, label, className, id }: CheckboxProps) {
+export function Checkbox({
+  checked = false,
+  onCheckedChange,
+  label,
+  className,
+  id,
+}: CheckboxProps) {
   const reactId = React.useId();
   const inputId = id ?? reactId;
   return (

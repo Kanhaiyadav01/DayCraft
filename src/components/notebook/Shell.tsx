@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
@@ -13,11 +13,10 @@ import {
   Volume2,
   VolumeX,
   Sparkles,
-  Trees,
-  Trophy,
   History as HistoryIcon,
   BarChart3,
-  User as UserIcon,
+  Clock,
+  CheckSquare,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -34,17 +33,15 @@ import { Modal } from "./Modal";
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/focus", label: "Focus Mode", icon: Sparkles },
-  { to: "/stopwatch", label: "Stopwatch", icon: TimerReset },
+  { to: "/time-tracking", label: "Time Tracking", icon: HistoryIcon },
   { to: "/timer", label: "Timer", icon: Timer },
+  { to: "/stopwatch", label: "Stopwatch", icon: TimerReset },
+  { to: "/goals", label: "Today's Goals", icon: CheckSquare },
   { to: "/notes", label: "Notes", icon: NotebookPen },
-  { to: "/garden", label: "Garden", icon: Trees },
-  { to: "/achievements", label: "Achievements", icon: Trophy },
-  { to: "/history", label: "History", icon: HistoryIcon },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/profile", label: "Profile", icon: UserIcon },
+  { to: "/clock", label: "Clock", icon: Clock },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 ] as const;
-
 
 export function Shell({ children }: { children: React.ReactNode }) {
   useApplyTheme();
@@ -59,6 +56,22 @@ export function Shell({ children }: { children: React.ReactNode }) {
     (user?.user_metadata?.display_name as string | undefined) ??
     user?.email?.split("@")[0] ??
     (isGuest ? "Guest" : "Friend");
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("avatar_url, display_name")
+        .eq("id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const displayName = profile?.display_name || name;
+  const avatarUrl = profile?.avatar_url;
 
   React.useEffect(() => setOpen(false), [pathname]);
 
@@ -88,18 +101,23 @@ export function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-64 shrink-0 flex-col gap-4 border-r-2 border-ink bg-paper-2 p-5 sticky top-0 h-screen">
+      <aside className="hidden lg:flex w-64 shrink-0 flex-col gap-4 border-r-2 border-ink bg-paper-2 p-5 sticky top-0 h-screen overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <BrandMark />
         <NavList pathname={pathname} />
-        <div className="mt-auto space-y-3">
-          <UserCard name={name} isGuest={isGuest} onSignOut={() => setSignOutOpen(true)} />
+        <div className="mt-auto">
+          <UserCard
+            name={displayName}
+            avatarUrl={avatarUrl}
+            isGuest={isGuest}
+            onSignOut={() => setSignOutOpen(true)}
+          />
         </div>
       </aside>
 
       {/* Mobile header */}
       <div className="lg:hidden fixed top-0 inset-x-0 z-40 flex items-center justify-between gap-2 border-b-2 border-ink bg-paper-2 px-4 py-3">
         <Link to="/dashboard" className="flex items-center gap-2">
-          <span className="font-hand text-2xl leading-none">TimeSketch</span>
+          <span className="font-hand text-2xl leading-none">DayCraft</span>
         </Link>
         <Button variant="outline" size="icon" aria-label="Menu" onClick={() => setOpen(true)}>
           <Menu className="h-5 w-5" />
@@ -120,18 +138,28 @@ export function Shell({ children }: { children: React.ReactNode }) {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 24, stiffness: 220 }}
-              className="h-full w-72 bg-paper-2 border-r-2 border-ink p-5 flex flex-col gap-4"
+              className="h-full w-72 bg-paper-2 border-r-2 border-ink p-5 flex flex-col gap-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between">
                 <BrandMark />
-                <Button variant="ghost" size="icon" onClick={() => setOpen(false)} aria-label="Close">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setOpen(false)}
+                  aria-label="Close"
+                >
                   <X className="h-5 w-5" />
                 </Button>
               </div>
               <NavList pathname={pathname} />
               <div className="mt-auto">
-                <UserCard name={name} isGuest={isGuest} onSignOut={() => setSignOutOpen(true)} />
+                <UserCard
+                  name={displayName}
+                  avatarUrl={avatarUrl}
+                  isGuest={isGuest}
+                  onSignOut={() => setSignOutOpen(true)}
+                />
               </div>
             </motion.aside>
           </motion.div>
@@ -174,7 +202,7 @@ function BrandMark() {
   return (
     <Link to="/dashboard" className="block">
       <div className="font-hand text-3xl leading-none">
-        Time<span className="highlight-marker">Sketch</span>
+        Day<span className="highlight-marker">Craft</span>
       </div>
       <div className="font-body text-xs text-ink-soft mt-1">your productivity notebook</div>
     </Link>
@@ -207,34 +235,45 @@ function NavList({ pathname }: { pathname: string }) {
   );
 }
 
-function UserCard({ name, isGuest, onSignOut }: { name: string; isGuest: boolean; onSignOut: () => void }) {
-  const { muted, toggleMuted } = useSoundStore();
+function UserCard({
+  name,
+  avatarUrl,
+  isGuest,
+  onSignOut,
+}: {
+  name: string;
+  avatarUrl?: string | null;
+  isGuest: boolean;
+  onSignOut: () => void;
+}) {
+  const navigate = useNavigate();
+  const initial = name.trim().charAt(0).toUpperCase();
+
   return (
-    <div className="paper-card p-3 space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <div className="min-w-0">
-          <div className="font-hand text-lg leading-none truncate">{name}</div>
-          {isGuest && <Badge tone="soft" className="mt-1">guest mode</Badge>}
-        </div>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={toggleMuted}
-          aria-label={muted ? "Unmute alarm" : "Mute alarm"}
-          title={muted ? "Unmute alarm" : "Mute alarm"}
-        >
-          {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-        </Button>
+    <div
+      onClick={() => navigate({ to: "/settings" })}
+      className="flex items-center gap-3 p-2 rounded-[12px] hover:bg-accent-soft cursor-pointer transition-colors border border-transparent hover:border-ink/10"
+      title="Profile settings"
+    >
+      <div className="shrink-0">
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt="avatar"
+            className="h-10 w-10 object-cover rounded-full ink-border"
+          />
+        ) : (
+          <div className="h-10 w-10 grid place-items-center bg-accent text-accent-foreground ink-border rounded-full font-hand text-xl">
+            {initial}
+          </div>
+        )}
       </div>
-      <Link
-        to="/settings"
-        className="flex items-center justify-center gap-2 px-3 py-2 ink-border rounded-[10px_14px_8px_12px] font-hand text-base bg-card ink-shadow-sm hover:-translate-y-0.5 transition-transform"
-      >
-        <SettingsIcon className="h-4 w-4" /> Customize
-      </Link>
-      <Button variant="outline" size="sm" className="w-full" onClick={onSignOut}>
-        <LogOut className="h-4 w-4" /> {isGuest ? "Exit guest mode" : "Sign out"}
-      </Button>
+      <div className="min-w-0 flex-1">
+        <div className="font-hand text-base font-bold leading-none truncate">Hello, {name}!</div>
+        <div className="text-xs text-ink-soft mt-0.5 truncate">
+          {isGuest ? "Guest Mode ✏️" : "Stay productive 🚀"}
+        </div>
+      </div>
     </div>
   );
 }

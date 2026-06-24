@@ -105,7 +105,7 @@ export const useTimerStore = create<TimerState>()(
       },
     }),
     {
-      name: "timesketch-timer",
+      name: "daycraft-timer",
       storage: {
         getItem: (k) => {
           if (typeof window === "undefined") return null;
@@ -126,7 +126,9 @@ export const useTimerStore = create<TimerState>()(
 );
 
 /** Pure helper for components that tick: compute remaining seconds. */
-export function computeRemaining(state: Pick<TimerState, "endAt" | "pausedRemaining" | "duration">): number {
+export function computeRemaining(
+  state: Pick<TimerState, "endAt" | "pausedRemaining" | "duration">,
+): number {
   if (state.endAt) return Math.max(0, Math.round((state.endAt - Date.now()) / 1000));
   return Math.max(0, state.pausedRemaining ?? state.duration);
 }

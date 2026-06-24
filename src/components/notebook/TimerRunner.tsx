@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 /**
  * Mounted once at the app root. Drives the global timer:
  * - polls every 500ms (works even when other components unmount)
- * - on zero, plays the chosen alarm in a loop until the user stops it
+ * - on zero, plays the chosen alarm using user's preferred mode/volume
  * - records the completed run to Supabase once per cycle
  */
 export function TimerRunner() {
@@ -22,6 +22,9 @@ export function TimerRunner() {
 
   const muted = useSoundStore((s) => s.muted);
   const alarm = useSoundStore((s) => s.alarm);
+  const alarmMode = useSoundStore((s) => s.alarmMode);
+  const volume = useSoundStore((s) => s.volume);
+  const customSoundData = useSoundStore((s) => s.customSoundData);
   const qc = useQueryClient();
 
   // Tick: detect completion.
@@ -43,7 +46,7 @@ export function TimerRunner() {
     };
   }, [endAt, _markComplete]);
 
-  // When alarming flips on: play loop + toast + save run.
+  // When alarming flips on: play alarm + toast + save run.
   const lastFiredRef = React.useRef<number>(0);
   React.useEffect(() => {
     if (!alarming) {
@@ -54,7 +57,9 @@ export function TimerRunner() {
     if (now - lastFiredRef.current < 1500) return; // de-dupe across remounts
     lastFiredRef.current = now;
 
-    if (!muted) alarmPlayer.startLoop(alarm);
+    if (!muted) {
+      alarmPlayer.startWithPreferences(alarm, alarmMode, customSoundData, volume, muted);
+    }
     toast.success(`${presetLabel} complete! Click stop to silence.`, {
       duration: 8000,
     });
@@ -64,12 +69,26 @@ export function TimerRunner() {
         const { data: auth } = await supabase.auth.getUser();
         const user = auth.user;
         if (!user) return;
-        await supabase.from("timer_runs").insert({
-          user_id: user.id,
-          kind: "timer",
-          seconds: duration,
-          label: label || presetLabel,
-        });
+
+        if (user.is_anonymous) {
+          const local = localStorage.getItem("daycraft-guest-timer-runs");
+          const runs = local ? JSON.parse(local) : [];
+          runs.push({
+            id: `g-run-${Math.random().toString(36).slice(2, 9)}`,
+            kind: "timer",
+            seconds: duration,
+            label: label || presetLabel,
+            created_at: new Date().toISOString(),
+          });
+          localStorage.setItem("daycraft-guest-timer-runs", JSON.stringify(runs));
+        } else {
+          await supabase.from("timer_runs").insert({
+            user_id: user.id,
+            kind: "timer",
+            seconds: duration,
+            label: label || presetLabel,
+          });
+        }
         qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
       } catch {
         /* ignore */
@@ -84,9 +103,12 @@ export function TimerRunner() {
   // If user toggles mute while alarm is playing, honor it.
   React.useEffect(() => {
     if (!alarming) return;
-    if (muted) alarmPlayer.stop();
-    else alarmPlayer.startLoop(alarm);
-  }, [muted, alarm, alarming]);
+    if (muted) {
+      alarmPlayer.stop();
+    } else {
+      alarmPlayer.startWithPreferences(alarm, alarmMode, customSoundData, volume, muted);
+    }
+  }, [muted, alarm, alarming, alarmMode, customSoundData, volume]);
 
   return null;
 }

@@ -13,8 +13,8 @@ export const Route = createFileRoute("/auth")({
   }),
   head: () => ({
     meta: [
-      { title: "Sign in · TimeSketch" },
-      { name: "description", content: "Sign in to TimeSketch with email, Google, or as a guest." },
+      { title: "Sign in · DayCraft" },
+      { name: "description", content: "Sign in to DayCraft with email, Google, or as a guest." },
     ],
   }),
   component: AuthPage,
@@ -40,9 +40,7 @@ function AuthPage() {
     try {
       // If the user is currently a guest, link credentials instead of signing up fresh.
       const { data: cur } = await supabase.auth.getUser();
-      const isGuest = Boolean(
-        cur.user && (cur.user as { is_anonymous?: boolean }).is_anonymous,
-      );
+      const isGuest = Boolean(cur.user && (cur.user as { is_anonymous?: boolean }).is_anonymous);
 
       if (mode === "signup") {
         if (isGuest) {
@@ -67,7 +65,7 @@ function AuthPage() {
             },
           });
           if (error) throw error;
-          toast.success("Welcome to TimeSketch! ✏️");
+          toast.success("Welcome to DayCraft! ✏️");
           goNext();
         }
       } else if (mode === "signin") {
@@ -137,7 +135,7 @@ function AuthPage() {
 
           <div className="text-center">
             <Link to="/" className="font-hand text-4xl leading-none">
-              Time<span className="highlight-marker">Sketch</span> ✏️
+              Day<span className="highlight-marker">Craft</span> ✏️
             </Link>
             <p className="mt-2 text-ink-soft">
               {mode === "signup"
@@ -244,21 +242,33 @@ function AuthPage() {
           <div className="flex flex-wrap justify-between gap-2 text-sm">
             {mode === "signin" && (
               <>
-                <button className="font-hand text-ink-soft hover:text-ink" onClick={() => setMode("forgot")}>
+                <button
+                  className="font-hand text-ink-soft hover:text-ink"
+                  onClick={() => setMode("forgot")}
+                >
                   Forgot password?
                 </button>
-                <button className="font-hand text-ink-soft hover:text-ink" onClick={() => setMode("signup")}>
+                <button
+                  className="font-hand text-ink-soft hover:text-ink"
+                  onClick={() => setMode("signup")}
+                >
                   Need an account? <span className="highlight-marker">Sign up</span>
                 </button>
               </>
             )}
             {mode === "signup" && (
-              <button className="font-hand text-ink-soft hover:text-ink ml-auto" onClick={() => setMode("signin")}>
+              <button
+                className="font-hand text-ink-soft hover:text-ink ml-auto"
+                onClick={() => setMode("signin")}
+              >
                 Already have a notebook? <span className="highlight-marker">Sign in</span>
               </button>
             )}
             {mode === "forgot" && (
-              <button className="font-hand text-ink-soft hover:text-ink ml-auto" onClick={() => setMode("signin")}>
+              <button
+                className="font-hand text-ink-soft hover:text-ink ml-auto"
+                onClick={() => setMode("signin")}
+              >
                 ← Back to sign in
               </button>
             )}

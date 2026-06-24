@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { DEFAULT_THEME, type ThemeId } from "@/lib/themes";
@@ -14,7 +15,7 @@ export const useThemeStore = create<ThemeState>()(
       setTheme: (id) => set({ theme: id }),
     }),
     {
-      name: "timesketch-theme",
+      name: "daycraft-theme",
       // SSR-safe storage shim
       storage: {
         getItem: (k) => {
@@ -38,7 +39,9 @@ export const useThemeStore = create<ThemeState>()(
 /** Applies the active theme to <html data-theme="…"> */
 export function useApplyTheme() {
   const theme = useThemeStore((s) => s.theme);
-  if (typeof document !== "undefined") {
-    document.documentElement.dataset.theme = theme;
-  }
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.dataset.theme = theme;
+    }
+  }, [theme]);
 }
