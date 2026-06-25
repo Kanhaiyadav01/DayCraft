@@ -39,7 +39,7 @@ export function CardHeader({ className, ...p }: React.HTMLAttributes<HTMLDivElem
   return <div className={cn("mb-3 flex items-start justify-between gap-3", className)} {...p} />;
 }
 export function CardTitle({ className, ...p }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn("font-hand text-2xl leading-none", className)} {...p} />;
+  return <h3 className={cn("font-hand text-lg font-semibold leading-none", className)} {...p} />;
 }
 export function CardDescription({ className, ...p }: React.HTMLAttributes<HTMLParagraphElement>) {
   return <p className={cn("text-sm text-ink-soft", className)} {...p} />;

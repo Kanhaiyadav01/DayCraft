@@ -201,7 +201,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
 function BrandMark() {
   return (
     <Link to="/dashboard" className="block">
-      <div className="font-hand text-3xl leading-none">
+      <div className="font-hand text-2xl font-bold tracking-tight leading-none">
         Day<span className="highlight-marker">Craft</span>
       </div>
       <div className="font-body text-xs text-ink-soft mt-1">your productivity notebook</div>
@@ -219,7 +219,7 @@ function NavList({ pathname }: { pathname: string }) {
             key={to}
             to={to}
             className={cn(
-              "group flex items-center gap-3 px-3 py-2.5 font-hand text-lg",
+              "group flex items-center gap-3 px-3 py-2 font-hand text-sm font-medium",
               "border-2 border-transparent rounded-[10px_14px_8px_12px] transition-all",
               active
                 ? "bg-accent text-accent-foreground border-ink ink-shadow-sm -rotate-[0.4deg]"
@@ -263,13 +263,13 @@ function UserCard({
             className="h-10 w-10 object-cover rounded-full ink-border"
           />
         ) : (
-          <div className="h-10 w-10 grid place-items-center bg-accent text-accent-foreground ink-border rounded-full font-hand text-xl">
+          <div className="h-10 w-10 grid place-items-center bg-accent text-accent-foreground ink-border rounded-full font-hand text-xl font-semibold">
             {initial}
           </div>
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="font-hand text-base font-bold leading-none truncate">Hello, {name}!</div>
+        <div className="font-hand text-base font-medium leading-none truncate">Hello, {name}!</div>
         <div className="text-xs text-ink-soft mt-0.5 truncate">
           {isGuest ? "Guest Mode ✏️" : "Stay productive 🚀"}
         </div>
