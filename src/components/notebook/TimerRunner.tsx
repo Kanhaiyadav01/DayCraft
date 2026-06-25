@@ -46,22 +46,14 @@ export function TimerRunner() {
     };
   }, [endAt, _markComplete]);
 
-  // When alarming flips on: play alarm + toast + save run.
+  // When alarming flips on: trigger success toast + save completed run to database once.
   const lastFiredRef = React.useRef<number>(0);
   React.useEffect(() => {
-    if (!alarming) {
-      alarmPlayer.stop();
-      return;
-    }
+    if (!alarming) return;
     const now = Date.now();
     if (now - lastFiredRef.current < 1500) return; // de-dupe across remounts
     lastFiredRef.current = now;
 
-    if (!muted) {
-      alarmPlayer.startWithPreferences(alarm, alarmMode, customSoundData, volume, muted, () => {
-        useTimerStore.getState().stopAlarm();
-      });
-    }
     toast.success(`${presetLabel} complete! Click stop to silence.`, {
       duration: 8000,
     });
@@ -96,21 +88,23 @@ export function TimerRunner() {
         /* ignore */
       }
     })();
+  }, [alarming, duration, label, presetLabel, qc]);
 
-    return () => alarmPlayer.stop();
-    // alarming is the trigger; other values are read at fire-time
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [alarming]);
-
-  // If user toggles mute while alarm is playing, honor it.
+  // Audio Playback lifecycle: manages starting, stopping, and settings updates.
   React.useEffect(() => {
-    if (!alarming) return;
-    if (muted) {
+    if (!alarming || muted) {
       alarmPlayer.stop();
-    } else {
-      alarmPlayer.startWithPreferences(alarm, alarmMode, customSoundData, volume, muted);
+      return;
     }
-  }, [muted, alarm, alarming, alarmMode, customSoundData, volume]);
+
+    alarmPlayer.startWithPreferences(alarm, alarmMode, customSoundData, volume, muted, () => {
+      useTimerStore.getState().stopAlarm();
+    });
+
+    return () => {
+      alarmPlayer.stop();
+    };
+  }, [alarming, muted, alarm, alarmMode, customSoundData, volume]);
 
   return null;
 }
