@@ -240,6 +240,25 @@
   --sky: oklch(0.82 0.08 230);
 }
 
+/* ── Electric Blue ⚡ ───────────────────────────────────── */
+[data-theme="electric"] {
+  --paper: #000000;
+  --paper-2: #0a0a0c;
+  --card: #09090b;
+  --ink: #f4f4f5;
+  --ink-soft: #a1a1aa;
+  --rule: #27272a;
+  --accent: #0066ff;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(0, 102, 255, 0.15);
+  --tape: #111827;
+  --highlight: rgba(0, 102, 255, 0.25);
+  --mint: #00d2ff;
+  --coral: #ff3b30;
+  --sky: #3b82f6;
+}
+
+
 /* ── Base elements ──────────────────────────────────────── */
 @layer base {
   * {

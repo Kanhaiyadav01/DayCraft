@@ -8,7 +8,7 @@ import { Badge, Button, Card, Input, Tape } from "@/components/notebook";
 import { Shell } from "@/components/notebook/Shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { formatMS, formatHMS } from "@/lib/time";
+import { formatMS, formatHMS, formatStopwatch, formatStopwatchMs } from "@/lib/time";
 
 export const Route = createFileRoute("/_authenticated/stopwatch")({
   head: () => ({ meta: [{ title: "Stopwatch · DayCraft" }] }),
@@ -105,7 +105,8 @@ function StopwatchPage() {
               animate={{ scale: 1 }}
               className="font-hand text-7xl sm:text-8xl tabular-nums tracking-tight"
             >
-              {formatMS(elapsed)}
+              {formatStopwatch(elapsed)}
+              <span className="text-3xl sm:text-4xl text-ink-soft">.{formatStopwatchMs(elapsed)}</span>
             </motion.div>
             <div className="mt-2 text-ink-soft font-hand text-xl">
               {running ? "tick… tick… tick…" : elapsed > 0 ? "paused" : "ready when you are"}

@@ -18,7 +18,7 @@ import { Card, Tape, StatsCard, Badge } from "@/components/notebook";
 import { Shell } from "@/components/notebook/Shell";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
-import { computeStreak } from "@/lib/time";
+import { computeStreak, formatLongHMS } from "@/lib/time";
 
 export const Route = createFileRoute("/_authenticated/analytics")({
   head: () => ({ meta: [{ title: "Analytics · DayCraft" }] }),
@@ -64,9 +64,9 @@ function AnalyticsPage() {
     },
   });
 
-  // 1. Calculations for Daily focus mins (last 7 days)
+  // 1. Calculations for Daily focus seconds (last 7 days)
   const dailyChartData = React.useMemo(() => {
-    const dataMap: Record<string, { day: string; minutes: number }> = {};
+    const dataMap: Record<string, { day: string; seconds: number }> = {};
 
     // Initialize past 7 days
     for (let i = 6; i >= 0; i--) {
@@ -74,24 +74,18 @@ function AnalyticsPage() {
       d.setDate(d.getDate() - i);
       const label = d.toLocaleDateString(undefined, { weekday: "short" });
       const key = d.toISOString().slice(0, 10);
-      dataMap[key] = { day: label, minutes: 0 };
+      dataMap[key] = { day: label, seconds: 0 };
     }
 
     // Accumulate timer runs seconds
     for (const r of runs) {
       const key = r.created_at.slice(0, 10);
       if (dataMap[key]) {
-        dataMap[key].minutes += r.seconds / 60;
+        dataMap[key].seconds += r.seconds;
       }
     }
 
-    // Accumulate focus sessions (avoid double counting by only adding if focus run not already logged)
-    // Actually, timer_runs stores stopwatch/timer/focus kind runs. Let's make sure we just sum timer_runs as it represents the total time.
-    // Let's round numbers
-    return Object.values(dataMap).map((d) => ({
-      ...d,
-      minutes: Math.round(d.minutes * 10) / 10,
-    }));
+    return Object.values(dataMap);
   }, [runs]);
 
   // 2. Vibe categorization metrics (Pie Chart)
@@ -109,23 +103,22 @@ function AnalyticsPage() {
     const total = focusSec + stopwatchSec + timerSec;
     if (total === 0) {
       return [
-        { name: "Focus Mode", value: 1, color: "var(--accent)" },
-        { name: "Stopwatch", value: 1, color: "var(--mint)" },
-        { name: "Timer", value: 1, color: "var(--coral)" },
+        { name: "Focus Mode", value: 0, color: "var(--accent)" },
+        { name: "Stopwatch", value: 0, color: "var(--mint)" },
+        { name: "Timer", value: 0, color: "var(--coral)" },
       ];
     }
 
     return [
-      { name: "Focus Mode", value: Math.round((focusSec / 60) * 10) / 10, color: "var(--accent)" },
-      { name: "Stopwatch", value: Math.round((stopwatchSec / 60) * 10) / 10, color: "var(--mint)" },
-      { name: "Timer", value: Math.round((timerSec / 60) * 10) / 10, color: "var(--coral)" },
+      { name: "Focus Mode", value: focusSec, color: "var(--accent)" },
+      { name: "Stopwatch", value: stopwatchSec, color: "var(--mint)" },
+      { name: "Timer", value: timerSec, color: "var(--coral)" },
     ];
   }, [runs]);
 
   // 3. Stats totals
-  const totalMins = React.useMemo(() => {
-    const sec = runs.reduce((sum, r) => sum + r.seconds, 0);
-    return Math.round((sec / 60) * 10) / 10;
+  const totalSeconds = React.useMemo(() => {
+    return runs.reduce((sum, r) => sum + r.seconds, 0);
   }, [runs]);
 
   const streak = React.useMemo(() => computeStreak(runs), [runs]);
@@ -154,8 +147,8 @@ function AnalyticsPage() {
           {/* Stats overview */}
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatsCard
-              label="Total focus minutes"
-              value={String(totalMins)}
+              label="Total focus time"
+              value={formatLongHMS(totalSeconds)}
               hint="cumulative time"
               icon={<Clock className="h-6 w-6" />}
               tone="accent"
@@ -185,11 +178,11 @@ function AnalyticsPage() {
 
           {/* Charts panel */}
           <div className="grid gap-6 md:grid-cols-3">
-            {/* Daily Minutes Bar Chart */}
+            {/* Daily Focus Time Bar Chart */}
             <Card className="md:col-span-2 p-6 flex flex-col justify-between min-h-[350px]">
               <div className="flex items-center gap-2 mb-4">
                 <Badge tone="accent">Activity Trend</Badge>
-                <h3 className="font-hand text-2xl font-bold">Daily Focus Minutes</h3>
+                <h3 className="font-hand text-2xl font-bold">Daily Focus Time</h3>
               </div>
               <div className="flex-1 w-full h-[220px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -203,12 +196,14 @@ function AnalyticsPage() {
                     />
                     <YAxis
                       stroke="var(--ink)"
-                      fontSize={12}
+                      fontSize={10}
                       tickLine={false}
                       axisLine={false}
-                      width={30}
+                      width={65}
+                      tickFormatter={(sec) => formatLongHMS(sec)}
                     />
                     <Tooltip
+                      formatter={(val) => [formatLongHMS(Number(val)), "Focus Time"]}
                       contentStyle={{
                         background: "var(--card)",
                         border: "2px solid var(--ink)",
@@ -218,7 +213,7 @@ function AnalyticsPage() {
                       }}
                     />
                     <Bar
-                      dataKey="minutes"
+                      dataKey="seconds"
                       fill="var(--accent)"
                       radius={[4, 4, 0, 0]}
                       stroke="var(--ink)"
@@ -257,6 +252,7 @@ function AnalyticsPage() {
                       ))}
                     </Pie>
                     <Tooltip
+                      formatter={(val) => [formatLongHMS(Number(val)), "Time Spent"]}
                       contentStyle={{
                         background: "var(--card)",
                         border: "2px solid var(--ink)",

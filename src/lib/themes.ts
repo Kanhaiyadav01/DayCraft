@@ -6,7 +6,8 @@ export type ThemeId =
   | "lavender"
   | "ocean"
   | "forest"
-  | "sunset";
+  | "sunset"
+  | "electric";
 
 export interface ThemeMeta {
   id: ThemeId;
@@ -73,6 +74,13 @@ export const THEMES: ThemeMeta[] = [
     emoji: "🌅",
     tagline: "Peach paper, terracotta warmth.",
     swatches: { paper: "#fbe3cf", ink: "#5e2b18", accent: "#e07a3a", tape: "#f1b48a" },
+  },
+  {
+    id: "electric",
+    name: "Electric Blue",
+    emoji: "⚡",
+    tagline: "Pure black and electric blue neon contrast.",
+    swatches: { paper: "#000000", ink: "#ffffff", accent: "#0066ff", tape: "#111827" },
   },
 ];
 

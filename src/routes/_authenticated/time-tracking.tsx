@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge, Button, Card, Input, Tape, Modal } from "@/components/notebook";
 import { Shell } from "@/components/notebook/Shell";
-import { formatHMS, formatRelative } from "@/lib/time";
+import { formatHMS, formatRelative, formatLongHMS } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -170,7 +170,7 @@ function TimeTrackingPage() {
                 <h1 className="font-hand text-5xl leading-none">Time Tracking</h1>
                 <p className="text-ink-soft mt-1">
                   Every lap, sprint, and deep dive you've logged. {filtered.length} entries ·{" "}
-                  {formatHMS(totalSeconds)} total.
+                  {formatLongHMS(totalSeconds)} total.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
@@ -238,7 +238,7 @@ function TimeTrackingPage() {
                 <div className="flex items-baseline justify-between">
                   <h2 className="font-hand text-2xl">{prettyDay(day)}</h2>
                   <Badge tone="soft">
-                    {items.length} · {formatHMS(daySeconds)}
+                    {items.length} · {formatLongHMS(daySeconds)}
                   </Badge>
                 </div>
                 <div className="space-y-2">

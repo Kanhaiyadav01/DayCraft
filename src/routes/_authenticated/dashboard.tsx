@@ -22,7 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge, Button, Card, Input, Tape, Toggle, QuickChecklist } from "@/components/notebook";
 import { Shell } from "@/components/notebook/Shell";
 import { useAuth } from "@/hooks/use-auth";
-import { formatHMS, formatMS, computeStreak } from "@/lib/time";
+import { formatHMS, formatMS, computeStreak, formatStopwatch, formatStopwatchMs } from "@/lib/time";
 import { useTimerStore, computeRemaining } from "@/stores/timer-store";
 import { useSoundStore } from "@/stores/sound-store";
 import { cn } from "@/lib/utils";
@@ -700,7 +700,8 @@ function DashboardPage() {
                     animate={{ scale: 1 }}
                     className="font-hand text-6xl sm:text-7xl tabular-nums tracking-tight font-bold text-center flex-1"
                   >
-                    {formatMS(swElapsed)}
+                    {formatStopwatch(swElapsed)}
+                    <span className="text-2xl sm:text-3xl text-ink-soft">.{formatStopwatchMs(swElapsed)}</span>
                   </motion.div>
                   <StopwatchStickFigure running={swRunning} />
                 </div>
@@ -722,7 +723,7 @@ function DashboardPage() {
                   <Button
                     onClick={handleSwReset}
                     variant="outline"
-                    className="font-hand text-xl px-6 py-2.5 bg-[#fdebee] hover:-translate-y-0.5 cursor-pointer flex items-center gap-2 text-ink font-bold"
+                    className="font-hand text-xl px-6 py-2.5 bg-destructive/15 text-destructive border-destructive/30 hover:bg-destructive/25 hover:-translate-y-0.5 cursor-pointer flex items-center gap-2 font-bold"
                   >
                     <RotateCcw className="h-5 w-5" /> Reset
                   </Button>
@@ -731,7 +732,7 @@ function DashboardPage() {
                     onClick={handleSwLap}
                     disabled={!swRunning}
                     variant="outline"
-                    className="font-hand text-xl px-6 py-2.5 bg-[#f3f4f6] hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 cursor-pointer flex items-center gap-2 border-ink text-ink font-bold"
+                    className="font-hand text-xl px-6 py-2.5 bg-muted text-ink hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 cursor-pointer flex items-center gap-2 border-ink font-bold"
                   >
                     <Flag className="h-5 w-5" /> Lap
                   </Button>
@@ -918,7 +919,7 @@ function DashboardPage() {
                   <Button
                     onClick={handleTimerReset}
                     variant="outline"
-                    className="font-hand text-xl px-6 py-2.5 bg-[#fdebee] hover:-translate-y-0.5 cursor-pointer flex items-center gap-2 text-ink font-bold"
+                    className="font-hand text-xl px-6 py-2.5 bg-destructive/15 text-destructive border-destructive/30 hover:bg-destructive/25 hover:-translate-y-0.5 cursor-pointer flex items-center gap-2 font-bold"
                   >
                     <RotateCcw className="h-5 w-5" /> Reset
                   </Button>
