@@ -259,7 +259,7 @@ function UserCard({
         {avatarUrl ? (
           <img
             src={avatarUrl}
-            alt="avatar"
+            alt="User profile avatar"
             className="h-10 w-10 object-cover rounded-full ink-border"
           />
         ) : (

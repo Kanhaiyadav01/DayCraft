@@ -296,7 +296,7 @@ function SettingsPage() {
                   {avatarUrl ? (
                     <img
                       src={avatarUrl}
-                      alt="avatar"
+                      alt="User profile avatar"
                       className="h-24 w-24 object-cover rounded-full ink-border ink-shadow-sm bg-paper"
                     />
                   ) : (

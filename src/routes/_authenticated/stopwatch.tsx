@@ -106,7 +106,9 @@ function StopwatchPage() {
               className="font-hand text-7xl sm:text-8xl tabular-nums tracking-tight"
             >
               {formatStopwatch(elapsed)}
-              <span className="text-3xl sm:text-4xl text-ink-soft">.{formatStopwatchMs(elapsed)}</span>
+              <span className="text-3xl sm:text-4xl text-ink-soft">
+                .{formatStopwatchMs(elapsed)}
+              </span>
             </motion.div>
             <div className="mt-2 text-ink-soft font-hand text-xl">
               {running ? "tick… tick… tick…" : elapsed > 0 ? "paused" : "ready when you are"}

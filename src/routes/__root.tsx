@@ -76,21 +76,46 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "DayCraft — a cozy handwritten productivity companion" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=5" },
+      { title: "DayCraft — Cozy Notebook Productivity App & Study Timer" },
       {
         name: "description",
         content:
-          "DayCraft is a notebook-style productivity app: focus timers, quick notes, and a hand-drawn theme engine.",
+          "DayCraft is a cozy notebook-themed productivity app & study timer with no signup required. Track focus sessions, manage daily goals, write notes, and view analytics.",
+      },
+      {
+        name: "keywords",
+        content:
+          "study timer, productivity app, focus timer, time tracking app, daily goal tracker, notebook productivity app, free productivity tool, focus timer app, free study app no signup",
       },
       { name: "author", content: "DayCraft" },
-      { property: "og:title", content: "DayCraft" },
-      { property: "og:description", content: "A cozy handwritten productivity companion." },
+      // Open Graph / Facebook
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://daycraft.live" },
+      { property: "og:title", content: "DayCraft — Cozy Notebook Productivity App & Study Timer" },
+      {
+        property: "og:description",
+        content:
+          "DayCraft is a cozy notebook-themed productivity app & study timer with no signup required. Track focus sessions, manage daily goals, write notes, and view analytics.",
+      },
+      { property: "og:image", content: "https://daycraft.live/og-image.png" },
+      { property: "og:site_name", content: "DayCraft" },
+      { property: "og:locale", content: "en_US" },
+      // Twitter
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:url", content: "https://daycraft.live" },
+      { name: "twitter:title", content: "DayCraft — Cozy Notebook Productivity App & Study Timer" },
+      {
+        name: "twitter:description",
+        content:
+          "DayCraft is a cozy notebook-themed productivity app & study timer with no signup required. Track focus sessions, manage daily goals, write notes, and view analytics.",
+      },
+      { name: "twitter:image", content: "https://daycraft.live/og-image.png" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      { rel: "manifest", href: "/manifest.json" },
+      { rel: "canonical", href: "https://daycraft.live" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },

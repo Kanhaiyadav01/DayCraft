@@ -31,18 +31,46 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "DayCraft — Cozy Notebook Productivity" },
+      { title: "DayCraft — Cozy Notebook Productivity App & Study Timer" },
       {
         name: "description",
         content:
-          "Track time, manage tasks, write notes, monitor progress, and achieve your goals with DayCraft.",
+          "DayCraft is a cozy notebook-themed productivity app & study timer with no signup required. Track focus sessions, manage daily goals, write notes, and view analytics.",
+      },
+      { property: "og:title", content: "DayCraft — Cozy Notebook Productivity App & Study Timer" },
+      {
+        property: "og:description",
+        content:
+          "DayCraft is a cozy notebook-themed productivity app & study timer with no signup required. Track focus sessions, manage daily goals, write notes, and view analytics.",
+      },
+      { property: "og:url", content: "https://daycraft.live" },
+      { name: "twitter:title", content: "DayCraft — Cozy Notebook Productivity App & Study Timer" },
+      {
+        name: "twitter:description",
+        content:
+          "DayCraft is a cozy notebook-themed productivity app & study timer with no signup required. Track focus sessions, manage daily goals, write notes, and view analytics.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://daycraft.live" }],
   }),
   component: LandingPage,
 });
 
 function LandingPage() {
+  const softwareSchema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "DayCraft",
+    description:
+      "DayCraft is a cozy notebook-style productivity web app with time tracking, focus timers, daily goals, notes, and analytics, featuring a no-signup guest mode.",
+    applicationCategory: "ProductivityApplication",
+    operatingSystem: "All",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+  };
   useApplyTheme();
   const theme = useThemeStore((s) => s.theme);
   const themeMeta = THEMES.find((t) => t.id === theme)!;
@@ -232,6 +260,10 @@ function LandingPage() {
 
   return (
     <main className="min-h-screen px-4 pt-10 pb-6 sm:px-8 lg:px-16 flex flex-col justify-between bg-paper">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+      />
       <div className="mx-auto max-w-6xl w-full space-y-16">
         {/* Header */}
         <header className="relative paper-card p-6 sm:p-8">

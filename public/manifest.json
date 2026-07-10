@@ -1,0 +1,16 @@
+{
+  "name": "DayCraft — Cozy Notebook Productivity Companion",
+  "short_name": "DayCraft",
+  "description": "Track focus, manage goals, write notes, and view study analytics in a cozy handwritten notebook.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbfaf7",
+  "theme_color": "#18181b",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

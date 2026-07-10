@@ -701,7 +701,9 @@ function DashboardPage() {
                     className="font-hand text-6xl sm:text-7xl tabular-nums tracking-tight font-bold text-center flex-1"
                   >
                     {formatStopwatch(swElapsed)}
-                    <span className="text-2xl sm:text-3xl text-ink-soft">.{formatStopwatchMs(swElapsed)}</span>
+                    <span className="text-2xl sm:text-3xl text-ink-soft">
+                      .{formatStopwatchMs(swElapsed)}
+                    </span>
                   </motion.div>
                   <StopwatchStickFigure running={swRunning} />
                 </div>
